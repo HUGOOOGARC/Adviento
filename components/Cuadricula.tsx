@@ -22,10 +22,9 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
   const [cargandoDia, setCargandoDia] = useState<number | null>(null);
   const [diasAbiertos, setDiasAbiertos] = useState<number[]>([]);
 
-  // Días con estética carmesí alternada según el diseño original [3]
-  const diasRojos = [5-10];
+  // CORREGIDO: Array explícito de días con tono carmesí
+  const diasRojos = [1-6];
 
-  // Cargar lista de días que Lucía ya ha visitado desde localStorage
   useEffect(() => {
     try {
       const guardados = localStorage.getItem('adviento_dias_abiertos');
@@ -54,7 +53,6 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
     const mesActual = fechaActual.getMonth(); // 11 corresponde a Diciembre en JS
     const diaActual = fechaActual.getDate();
 
-    // Restricción de fechas: bloquear si es antes de diciembre o si es un día futuro [3]
     if (mesActual < 11 || (mesActual === 11 && dia > diaActual)) {
       setAlertaBloqueo(`🔒 Todavía no 🔒 Esta sorpresa se abre el ${dia} de diciembre.`);
       return;
@@ -91,7 +89,7 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
   return (
     <div className="min-h-screen bg-[#FDF8F2] flex flex-col items-center justify-start py-10 px-4 relative z-20">
       
-      {/* --- ENCABEZADO --- */}
+      {/* Encabezado */}
       <header className="text-center mb-6 max-w-lg">
         <div className="inline-flex items-center gap-1.5 bg-[#F4EBE1] border border-[#E2D5C7] px-4 py-1 rounded-full text-xs font-serif text-[#B83232] font-semibold mb-3">
           <Sparkles className="w-3.5 h-3.5 text-[#B83232]" />
@@ -107,7 +105,7 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
         </p>
       </header>
 
-      {/* --- BARRA DE PROGRESO DE ADVIENTO --- */}
+      {/* Barra de progreso */}
       <div className="w-full max-w-md bg-white border border-[#EAD7C5] p-3 rounded-2xl shadow-sm mb-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Heart className="w-4 h-4 text-[#B83232] fill-[#B83232]" />
@@ -123,7 +121,7 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
         </div>
       </div>
 
-      {/* --- ALERTA EMERGENTE DE CANDADO POR FECHA --- */}
+      {/* Mensaje flotante de candado */}
       <AnimatePresence>
         {alertaBloqueo && (
           <motion.div
@@ -138,7 +136,7 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
         )}
       </AnimatePresence>
 
-      {/* --- CUADRÍCULA DE DÍAS (01 AL 24) --- */}
+      {/* Cuadrícula de casillas */}
       <div className="grid grid-cols-4 sm:grid-cols-6 gap-3.5 max-w-2xl w-full">
         {Array.from({ length: 24 }, (_, i) => i + 1).map((dia) => {
           const esRojo = diasRojos.includes(dia);
@@ -158,7 +156,6 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
                   : 'bg-[#F4EBE1] text-[#3D2E2B] border-[#E2D5C7]'
               }`}
             >
-              {/* Indicador de casilla completada */}
               {yaAbierto && (
                 <div className="absolute top-1.5 right-1.5">
                   <CheckCircle2 className={`w-3.5 h-3.5 ${esRojo ? 'text-white/80' : 'text-[#B83232]'}`} />

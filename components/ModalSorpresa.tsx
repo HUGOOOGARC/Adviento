@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Heart, Sparkles, Hand } from 'lucide-react';
+import { X, Heart } from 'lucide-react';
 
 interface Sorpresa {
   dia: number;
@@ -21,7 +21,6 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
   const [revelado, setRevelado] = useState(false);
 
   useEffect(() => {
-    // Configurar superficie de rascado sobre el canvas
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -30,7 +29,6 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
-    // Gradiente dorado metálico
     const gradiente = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     gradiente.addColorStop(0, '#D4AF37');
     gradiente.addColorStop(0.5, '#F5EBE1');
@@ -39,7 +37,7 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
     ctx.fillStyle = gradiente;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = 'bold 16px Georgia';
+    ctx.font = 'bold 15px Georgia';
     ctx.fillStyle = '#3D2E2B';
     ctx.textAlign = 'center';
     ctx.fillText('✨ Rasca aquí con tu dedo o ratón ✨', canvas.width / 2, canvas.height / 2);
@@ -54,10 +52,12 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
       setRevelado(true);
     };
 
+    // CORREGIDO: Lectura adecuada del primer objeto de TouchList
     const obtenerPosicion = (e: MouseEvent | TouchEvent) => {
       const rect = canvas.getBoundingClientRect();
-      const clienteX = 'touches' in e ? e.touches.clientX : e.clientX;
-      const clienteY = 'touches' in e ? e.touches.clientY : e.clientY;
+      const esTactil = 'touches' in e && e.touches.length > 0;
+      const clienteX = esTactil ? e.touches.clientX : (e as MouseEvent).clientX;
+      const clienteY = esTactil ? e.touches.clientY : (e as MouseEvent).clientY;
       return { x: clienteX - rect.left, y: clienteY - rect.top };
     };
 
@@ -96,8 +96,8 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
           // @ts-ignore
           const confetti = (await import('canvas-confetti')).default;
           confetti({
-            particleCount: 70,
-            spread: 60,
+            particleCount: 75,
+            spread: 65,
             origin: { y: 0.6 },
             colors: ['#B83232', '#EAD7C5', '#FFD700'],
           });
@@ -131,7 +131,6 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
           {sorpresa.titulo}
         </h2>
 
-        {/* Capa de Rasca y Gana en Canvas */}
         <div className="relative rounded-2xl overflow-hidden mb-5 min-h-[160px] border border-[#EAD7C5] flex items-center justify-center bg-[#FDF8F2]">
           <canvas
             ref={canvasRef}
