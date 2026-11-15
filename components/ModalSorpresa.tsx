@@ -29,6 +29,7 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
+    // Fondo dorado metálico para la rasca
     const gradiente = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     gradiente.addColorStop(0, '#D4AF37');
     gradiente.addColorStop(0.5, '#F5EBE1');
@@ -52,13 +53,24 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
       setRevelado(true);
     };
 
-    // CORREGIDO: e.touches para eventos táctiles en móviles
+    // FUNCIÓN CORREGIDA: Acceso correcto a e.touches
     const obtenerPosicion = (e: MouseEvent | TouchEvent) => {
       const rect = canvas.getBoundingClientRect();
-      const esTactil = 'touches' in e && e.touches.length > 0;
-      const clienteX = esTactil ? e.touches.clientX : (e as MouseEvent).clientX;
-      const clienteY = esTactil ? e.touches.clientY : (e as MouseEvent).clientY;
-      return { x: clienteX - rect.left, y: clienteY - rect.top };
+      let clienteX = 0;
+      let clienteY = 0;
+
+      if ('touches' in e && e.touches.length > 0) {
+        clienteX = e.touches.clientX;
+        clienteY = e.touches.clientY;
+      } else {
+        clienteX = (e as MouseEvent).clientX;
+        clienteY = (e as MouseEvent).clientY;
+      }
+
+      return {
+        x: clienteX - rect.left,
+        y: clienteY - rect.top,
+      };
     };
 
     const alIniciar = (e: MouseEvent | TouchEvent) => {
@@ -73,7 +85,9 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
       rascar(pos.x, pos.y);
     };
 
-    const alDetener = () => { rascando = false; };
+    const alDetener = () => {
+      rascando = false;
+    };
 
     canvas.addEventListener('mousedown', alIniciar);
     canvas.addEventListener('mousemove', alMover);
@@ -86,6 +100,9 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
       canvas.removeEventListener('mousedown', alIniciar);
       canvas.removeEventListener('mousemove', alMover);
       canvas.removeEventListener('mouseup', alDetener);
+      canvas.removeEventListener('touchstart', alIniciar);
+      canvas.removeEventListener('touchmove', alMover);
+      canvas.removeEventListener('touchend', alDetener);
     };
   }, []);
 

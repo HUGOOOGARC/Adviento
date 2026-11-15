@@ -23,7 +23,7 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
   const [diasAbiertos, setDiasAbiertos] = useState<number[]>([]);
 
   // 🔴 MODO PRUEBA: Cambia a false antes de enviárselo a Lucía para activar el bloqueo real
-  const MODO_PRUEBA = true;
+  const MODO_PRUEBA = false;
 
   // Arreglo explícito de casillas con diseño carmesí alternado
   const diasRojos = [2-7];
