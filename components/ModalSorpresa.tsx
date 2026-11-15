@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Heart, Sparkles } from 'lucide-react';
+import { X, Heart, Sparkles, Hand } from 'lucide-react';
 
 interface Sorpresa {
   dia: number;
@@ -17,77 +17,146 @@ interface ModalSorpresaProps {
 }
 
 export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [revelado, setRevelado] = useState(false);
+
   useEffect(() => {
-    // Carga asíncrona de confeti al abrir el modal en el navegador
-    const lanzarConfeti = async () => {
-      try {
-        // @ts-ignore
-        const confetti = (await import('canvas-confetti')).default;
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ['#B83232', '#EAD7C5', '#F5EBE1', '#FFD700', '#D4AF37'],
-        });
-      } catch (err) {
-        console.error(err);
-      }
+    // Configurar superficie de rascado sobre el canvas
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    // Gradiente dorado metálico
+    const gradiente = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradiente.addColorStop(0, '#D4AF37');
+    gradiente.addColorStop(0.5, '#F5EBE1');
+    gradiente.addColorStop(1, '#B8860B');
+
+    ctx.fillStyle = gradiente;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.font = 'bold 16px Georgia';
+    ctx.fillStyle = '#3D2E2B';
+    ctx.textAlign = 'center';
+    ctx.fillText('✨ Rasca aquí con tu dedo o ratón ✨', canvas.width / 2, canvas.height / 2);
+
+    let rascando = false;
+
+    const rascar = (x: number, y: number) => {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(x, y, 22, 0, Math.PI * 2);
+      ctx.fill();
+      setRevelado(true);
     };
-    lanzarConfeti();
+
+    const obtenerPosicion = (e: MouseEvent | TouchEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const clienteX = 'touches' in e ? e.touches.clientX : e.clientX;
+      const clienteY = 'touches' in e ? e.touches.clientY : e.clientY;
+      return { x: clienteX - rect.left, y: clienteY - rect.top };
+    };
+
+    const alIniciar = (e: MouseEvent | TouchEvent) => {
+      rascando = true;
+      const pos = obtenerPosicion(e);
+      rascar(pos.x, pos.y);
+    };
+
+    const alMover = (e: MouseEvent | TouchEvent) => {
+      if (!rascando) return;
+      const pos = obtenerPosicion(e);
+      rascar(pos.x, pos.y);
+    };
+
+    const alDetener = () => { rascando = false; };
+
+    canvas.addEventListener('mousedown', alIniciar);
+    canvas.addEventListener('mousemove', alMover);
+    canvas.addEventListener('mouseup', alDetener);
+    canvas.addEventListener('touchstart', alIniciar);
+    canvas.addEventListener('touchmove', alMover);
+    canvas.addEventListener('touchend', alDetener);
+
+    return () => {
+      canvas.removeEventListener('mousedown', alIniciar);
+      canvas.removeEventListener('mousemove', alMover);
+      canvas.removeEventListener('mouseup', alDetener);
+    };
   }, []);
 
+  useEffect(() => {
+    if (revelado) {
+      const lanzarConfeti = async () => {
+        try {
+          // @ts-ignore
+          const confetti = (await import('canvas-confetti')).default;
+          confetti({
+            particleCount: 70,
+            spread: 60,
+            origin: { y: 0.6 },
+            colors: ['#B83232', '#EAD7C5', '#FFD700'],
+          });
+        } catch (e) {}
+      };
+      lanzarConfeti();
+    }
+  }, [revelado]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md">
       <motion.div
-        initial={{ opacity: 0, scale: 0.88, y: 25 }}
+        initial={{ opacity: 0, scale: 0.88, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        transition={{ duration: 0.35, ease: 'easeOut' }}
         className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-[#F0E6DF] relative overflow-hidden text-center"
       >
-        {/* Botón de cierre */}
         <button
           onClick={onCerrar}
-          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-[#3D2E2B] transition-colors rounded-full hover:bg-gray-100"
+          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-[#3D2E2B] transition-colors rounded-full hover:bg-gray-100 z-30"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Día del calendario */}
-        <div className="inline-flex items-center gap-1.5 bg-[#FDF8F2] border border-[#EAD7C5] px-4 py-1.5 rounded-full text-xs font-serif text-[#B83232] font-semibold mb-4">
+        <div className="inline-flex items-center gap-1.5 bg-[#FDF8F2] border border-[#EAD7C5] px-4 py-1.5 rounded-full text-xs font-serif text-[#B83232] font-semibold mb-3">
           <Heart className="w-3.5 h-3.5 fill-[#B83232]" />
           <span>Día {sorpresa.dia < 10 ? `0${sorpresa.dia}` : sorpresa.dia} de Diciembre</span>
         </div>
 
-        {/* Título */}
-        <h2 className="text-2xl font-serif text-[#3D2E2B] mb-4 tracking-tight leading-snug">
+        <h2 className="text-2xl font-serif text-[#3D2E2B] mb-4 tracking-tight">
           {sorpresa.titulo}
         </h2>
 
-        {/* Fotografía de recuerdo (si existe en Supabase) */}
-        {sorpresa.url_imagen && (
-          <div className="mb-4 rounded-2xl overflow-hidden max-h-60 border border-gray-100 shadow-sm relative group">
-            <img
-              src={sorpresa.url_imagen}
-              alt={`Recuerdo día ${sorpresa.dia}`}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          </div>
-        )}
+        {/* Capa de Rasca y Gana en Canvas */}
+        <div className="relative rounded-2xl overflow-hidden mb-5 min-h-[160px] border border-[#EAD7C5] flex items-center justify-center bg-[#FDF8F2]">
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full z-20 cursor-pointer touch-none"
+          />
 
-        {/* Texto del mensaje */}
-        <div className="bg-[#FDF8F2] p-4 rounded-2xl border border-[#F0E6DF] mb-6">
-          <p className="text-sm font-serif text-[#5C4D4A] leading-relaxed whitespace-pre-line text-left">
-            {sorpresa.mensaje}
-          </p>
+          <div className="p-4 text-left z-10 w-full">
+            {sorpresa.url_imagen && (
+              <img
+                src={sorpresa.url_imagen}
+                alt={`Recuerdo ${sorpresa.dia}`}
+                className="w-full max-h-48 object-cover rounded-xl mb-3 shadow-sm"
+              />
+            )}
+            <p className="text-sm font-serif text-[#5C4D4A] leading-relaxed whitespace-pre-line">
+              {sorpresa.mensaje}
+            </p>
+          </div>
         </div>
 
-        {/* Botón principal del modal */}
         <button
           onClick={onCerrar}
-          className="w-full bg-[#B83232] hover:bg-[#A02828] text-white font-medium py-3.5 px-6 rounded-xl transition-all shadow-md text-sm flex items-center justify-center gap-2"
+          className="w-full bg-[#B83232] hover:bg-[#A02828] text-white font-medium py-3.5 px-6 rounded-xl transition-all shadow-md text-sm"
         >
-          <span>Guardar recuerdo ❤️</span>
+          Guardar recuerdo ❤️
         </button>
       </motion.div>
     </div>
