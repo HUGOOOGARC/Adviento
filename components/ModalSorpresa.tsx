@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
+// @ts-ignore
 import confetti from 'canvas-confetti';
 import { X, Heart } from 'lucide-react';
 
