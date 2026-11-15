@@ -52,7 +52,7 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
       setRevelado(true);
     };
 
-    // CORREGIDO: Lectura adecuada del primer objeto de TouchList
+    // CORREGIDO: e.touches para eventos táctiles en móviles
     const obtenerPosicion = (e: MouseEvent | TouchEvent) => {
       const rect = canvas.getBoundingClientRect();
       const esTactil = 'touches' in e && e.touches.length > 0;
