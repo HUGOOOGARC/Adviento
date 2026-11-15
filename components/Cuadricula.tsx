@@ -1,5 +1,6 @@
 'use client';
 
+import LucesNavidenas from './LucesNavidenas';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Lock, Heart, CheckCircle2 } from 'lucide-react';
@@ -92,20 +93,19 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
   return (
     <div className="min-h-screen bg-[#FDF8F2] flex flex-col items-center justify-start py-10 px-4 relative z-20 select-none">
       
-      <header className="text-center mb-6 max-w-lg">
-        <div className="inline-flex items-center gap-1.5 bg-[#F4EBE1] border border-[#E2D5C7] px-4 py-1 rounded-full text-xs font-serif text-[#B83232] font-semibold mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-[#B83232]" />
-          <span>24 sorpresas para {nombrePareja}</span>
-        </div>
+<header className="text-center mb-6 max-w-lg">
+  {/* Guirnalda de Luces LED */}
+  <LucesNavidenas />
 
-        <h1 className="text-3xl sm:text-4xl font-serif text-[#3D2E2B] mb-2 tracking-tight font-normal">
-          Feliz Navidad mi Amor
-        </h1>
-        
-        <p className="text-sm font-serif text-[#6E5A54] italic">
-          He guardado un poquito de nosotros detrás de cada puerta.
-        </p>
-      </header>
+  <div className="inline-flex items-center gap-1.5 bg-[#F4EBE1] border border-[#E2D5C7] px-4 py-1 rounded-full text-xs font-serif text-[#B83232] font-semibold mb-3">
+    <Sparkles className="w-3.5 h-3.5 text-[#B83232]" />
+    <span>24 sorpresas para Lucía</span>
+  </div>
+
+  <h1 className="text-3xl sm:text-4xl font-serif text-[#3D2E2B] mb-2 tracking-tight font-normal">
+    Feliz Navidad mi Amor
+  </h1>
+</header>
 
       {/* Reloj contador regresivo */}
       <RelojCuentaAtras />
