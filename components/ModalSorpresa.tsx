@@ -18,17 +18,22 @@ interface ModalSorpresaProps {
 
 export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps) {
   useEffect(() => {
-    // Carga dinámica en tiempo de ejecución sin import estático en la cabecera
-    // @ts-ignore
-    import('canvas-confetti').then((module) => {
-      const confetti = module.default || module;
-      confetti({
-        particleCount: 70,
-        spread: 60,
-        origin: { y: 0.6 },
-        colors: ['#B83232', '#EAD7C5', '#F5EBE1', '#FFD700'],
-      });
-    }).catch(() => {});
+    // Importación dinámica exclusiva en cliente
+    const cargarConfeti = async () => {
+      try {
+        // @ts-ignore
+        const confetti = (await import('canvas-confetti')).default;
+        confetti({
+          particleCount: 70,
+          spread: 60,
+          origin: { y: 0.6 },
+          colors: ['#B83232', '#EAD7C5', '#F5EBE1', '#FFD700'],
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    cargarConfeti();
   }, []);
 
   return (
