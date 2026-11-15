@@ -8,7 +8,7 @@ interface BienvenidaProps {
   onAceptar: () => void;
 }
 
-export default function Bienvenida({ nombrePareja = "Maria", onAceptar }: BienvenidaProps) {
+export default function Bienvenida({ nombrePareja = "Lucía", onAceptar }: BienvenidaProps) {
   return (
     <div className="min-h-screen bg-[#FDF8F2] flex flex-col items-center justify-center p-4">
       <motion.div
