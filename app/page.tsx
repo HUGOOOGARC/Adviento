@@ -4,25 +4,43 @@ import React, { useState } from 'react';
 import Bienvenida from '@/components/Bienvenida';
 import Cuadricula from '@/components/Cuadricula';
 import ModalSorpresa from '@/components/ModalSorpresa';
+import NieveFondo from '@/components/NieveFondo';
+
+interface Sorpresa {
+  dia: number;
+  titulo: string;
+  mensaje: string;
+  url_imagen?: string;
+}
 
 export default function Home() {
-  const [pantalla, setPantalla] = useState<'bienvenida' | 'grid'>('bienvenida');
-  const [sorpresaSeleccionada, setSorpresaSeleccionada] = useState<any | null>(null);
-
-  if (pantalla === 'bienvenida') {
-    return <Bienvenida nombrePareja="Lucía" onAceptar={() => setPantalla('grid')} />;
-  }
+  const [mostrarCuadricula, setMostrarCuadricula] = useState(false);
+  const [sorpresaSeleccionada, setSorpresaSeleccionada] = useState<Sorpresa | null>(null);
 
   return (
-    <>
-      <Cuadricula onAbrirSorpresa={(sorpresa) => setSorpresaSeleccionada(sorpresa)} />
-      
-      {sorpresaSeleccionada && (
-        <ModalSorpresa
-          sorpresa={sorpresaSeleccionada}
-          onCerrar={() => setSorpresaSeleccionada(null)}
+    <main className="relative min-h-screen bg-[#FDF8F2]">
+      {/* Efecto de Nieve en Vivo */}
+      <NieveFondo />
+
+      {!mostrarCuadricula ? (
+        <Bienvenida 
+          nombrePareja="Lucía" 
+          onAceptar={() => setMostrarCuadricula(true)} 
+        />
+      ) : (
+        <Cuadricula 
+          nombrePareja="Lucía" 
+          onAbrirSorpresa={(sorpresa) => setSorpresaSeleccionada(sorpresa)} 
         />
       )}
-    </>
+
+      {/* Ventana Modal Emergente */}
+      {sorpresaSeleccionada && (
+        <ModalSorpresa 
+          sorpresa={sorpresaSeleccionada} 
+          onCerrar={() => setSorpresaSeleccionada(null)} 
+        />
+      )}
+    </main>
   );
 }
