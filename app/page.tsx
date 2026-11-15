@@ -5,6 +5,8 @@ import Bienvenida from '@/components/Bienvenida';
 import Cuadricula from '@/components/Cuadricula';
 import ModalSorpresa from '@/components/ModalSorpresa';
 import NieveFondo from '@/components/NieveFondo';
+import EfectoCorazones from '@/components/EfectoCorazones';
+import CuentaAtras from '@/components/CuentaAtras';
 
 interface Sorpresa {
   dia: number;
@@ -18,8 +20,11 @@ export default function Home() {
   const [sorpresaSeleccionada, setSorpresaSeleccionada] = useState<Sorpresa | null>(null);
 
   return (
-    <main className="relative min-h-screen bg-[#FDF8F2]">
-      {/* Efecto de Nieve en Vivo */}
+    <main className="relative min-h-screen bg-[#FDF8F2] overflow-x-hidden">
+      {/* Explosión de Corazones en Clic */}
+      <EfectoCorazones />
+
+      {/* Caída de Nieve Animada */}
       <NieveFondo />
 
       {!mostrarCuadricula ? (
@@ -28,13 +33,15 @@ export default function Home() {
           onAceptar={() => setMostrarCuadricula(true)} 
         />
       ) : (
-        <Cuadricula 
-          nombrePareja="Lucía" 
-          onAbrirSorpresa={(sorpresa) => setSorpresaSeleccionada(sorpresa)} 
-        />
+        <div className="flex flex-col items-center">
+          <Cuadricula 
+            nombrePareja="Lucía" 
+            onAbrirSorpresa={(sorpresa) => setSorpresaSeleccionada(sorpresa)} 
+          />
+        </div>
       )}
 
-      {/* Ventana Modal Emergente */}
+      {/* Modal Interactivo con Rasca y Gana */}
       {sorpresaSeleccionada && (
         <ModalSorpresa 
           sorpresa={sorpresaSeleccionada} 
