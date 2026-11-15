@@ -4,12 +4,6 @@ import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, Heart } from 'lucide-react';
 
-// Declaración del módulo integrada directamente en el componente para solucionar TS7016 en Vercel
-// @ts-ignore
-declare module 'canvas-confetti';
-// @ts-ignore
-import confetti from 'canvas-confetti';
-
 interface Sorpresa {
   dia: number;
   titulo: string;
@@ -23,18 +17,25 @@ interface ModalSorpresaProps {
 }
 
 export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps) {
-  // Disparar efecto de confeti cuando se abre la ventana
+  // Carga asíncrona en tiempo de ejecución: NO existe import estático en la cabecera
   useEffect(() => {
-    try {
-      confetti({
-        particleCount: 70,
-        spread: 60,
-        origin: { y: 0.6 },
-        colors: ['#B83232', '#EAD7C5', '#F5EBE1', '#FFD700']
-      });
-    } catch (e) {
-      console.error("Error lanzando confeti:", e);
-    }
+    const dispararConfeti = async () => {
+      try {
+        // @ts-ignore
+        const module = await import('canvas-confetti');
+        const confetti = module.default || module;
+        confetti({
+          particleCount: 70,
+          spread: 60,
+          origin: { y: 0.6 },
+          colors: ['#B83232', '#EAD7C5', '#F5EBE1', '#FFD700']
+        });
+      } catch (error) {
+        console.error("Error al ejecutar confeti:", error);
+      }
+    };
+
+    dispararConfeti();
   }, []);
 
   return (
