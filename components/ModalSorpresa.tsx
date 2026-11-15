@@ -29,7 +29,6 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
-    // Fondo dorado metálico para la rasca
     const gradiente = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     gradiente.addColorStop(0, '#D4AF37');
     gradiente.addColorStop(0.5, '#F5EBE1');
@@ -48,12 +47,12 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
     const rascar = (x: number, y: number) => {
       ctx.globalCompositeOperation = 'destination-out';
       ctx.beginPath();
-      ctx.arc(x, y, 22, 0, Math.PI * 2);
+      ctx.arc(x, y, 24, 0, Math.PI * 2);
       ctx.fill();
       setRevelado(true);
     };
 
-    // FUNCIÓN CORREGIDA: Acceso correcto a e.touches
+    // LECTURA ROBUSTA DEL EVENTO TÁCTIL O MOUSE
     const obtenerPosicion = (e: MouseEvent | TouchEvent) => {
       const rect = canvas.getBoundingClientRect();
       let clienteX = 0;
@@ -85,9 +84,7 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
       rascar(pos.x, pos.y);
     };
 
-    const alDetener = () => {
-      rascando = false;
-    };
+    const alDetener = () => { rascando = false; };
 
     canvas.addEventListener('mousedown', alIniciar);
     canvas.addEventListener('mousemove', alMover);

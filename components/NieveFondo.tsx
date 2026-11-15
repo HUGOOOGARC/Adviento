@@ -14,46 +14,44 @@ export default function NieveFondo() {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    const copoS: Array<{ x: number; y: number; r: number; d: number; velocidad: number }> = [];
-    const numCopos = 45;
+    const copos: Array<{ x: number; y: number; r: number; d: number; velocidad: number }> = [];
+    const numCopos = 50;
 
     for (let i = 0; i < numCopos; i++) {
-      copoS.push({
+      copos.push({
         x: Math.random() * width,
         y: Math.random() * height,
         r: Math.random() * 3 + 1,
         d: Math.random() * numCopos,
-        velocidad: Math.random() * 0.8 + 0.3,
+        velocidad: Math.random() * 0.7 + 0.3,
       });
     }
 
-    let animacionId: number;
+    let animId: number;
 
-    const dibujar = () => {
+    const animar = () => {
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = 'rgba(218, 165, 32, 0.4)'; // Copos dorados suaves
+      ctx.fillStyle = 'rgba(212, 175, 55, 0.45)';
       ctx.beginPath();
       for (let i = 0; i < numCopos; i++) {
-        const c = copoS[i];
+        const c = copos[i];
         ctx.moveTo(c.x, c.y);
         ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2, true);
       }
       ctx.fill();
 
-      // Mover los copos
       for (let i = 0; i < numCopos; i++) {
-        const c = copoS[i];
+        const c = copos[i];
         c.y += c.velocidad;
         c.x += Math.sin(c.d) * 0.5;
-
         if (c.y > height) {
-          copoS[i] = { x: Math.random() * width, y: -10, r: c.r, d: c.d, velocidad: c.velocidad };
+          copos[i] = { x: Math.random() * width, y: -10, r: c.r, d: c.d, velocidad: c.velocidad };
         }
       }
-      animacionId = requestAnimationFrame(dibujar);
+      animId = requestAnimationFrame(animar);
     };
 
-    dibujar();
+    animar();
 
     const alRedimensionar = () => {
       if (!canvas) return;
@@ -63,15 +61,10 @@ export default function NieveFondo() {
 
     window.addEventListener('resize', alRedimensionar);
     return () => {
-      cancelAnimationFrame(animacionId);
+      cancelAnimationFrame(animId);
       window.removeEventListener('resize', alRedimensionar);
     };
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-10 opacity-70"
-    />
-  );
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-10 opacity-70" />;
 }

@@ -22,44 +22,39 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
   const [cargandoDia, setCargandoDia] = useState<number | null>(null);
   const [diasAbiertos, setDiasAbiertos] = useState<number[]>([]);
 
-  // 🔴 MODO PRUEBA: Cambia a false antes de enviárselo a Lucía para activar el bloqueo real
+  // Configuración oficial de producción
   const MODO_PRUEBA = false;
 
-  // Arreglo explícito de casillas con diseño carmesí alternado
-  const diasRojos = [2-7];
+  // Patrón alternado de casillas rojas observadas en las capturas [2]
+  const diasRojos = [7-12];
 
   useEffect(() => {
     try {
       const guardados = localStorage.getItem('adviento_dias_abiertos');
-      if (guardados) {
-        setDiasAbiertos(JSON.parse(guardados));
-      }
+      if (guardados) setDiasAbiertos(JSON.parse(guardados));
     } catch (e) {
       console.error(e);
     }
   }, []);
 
-  const marcarDiaComoVisto = (dia: number) => {
+  const marcarDiaVisto = (dia: number) => {
     if (!diasAbiertos.includes(dia)) {
-      const nuevosAbiertos = [...diasAbiertos, dia];
-      setDiasAbiertos(nuevosAbiertos);
+      const nuevos = [...diasAbiertos, dia];
+      setDiasAbiertos(nuevos);
       try {
-        localStorage.setItem('adviento_dias_abiertos', JSON.stringify(nuevosAbiertos));
-      } catch (e) {
-        console.error(e);
-      }
+        localStorage.setItem('adviento_dias_abiertos', JSON.stringify(nuevos));
+      } catch (e) {}
     }
   };
 
   const intentarAbrirDia = async (dia: number) => {
     const fechaActual = new Date();
-    const mesActual = fechaActual.getMonth(); // 11 es Diciembre
+    const mesActual = fechaActual.getMonth(); // 11 = Diciembre
     const diaActual = fechaActual.getDate();
 
-    // Si MODO_PRUEBA está en true, permite abrir el Día 1 para probarlo hoy mismo
-    const esDiaPermitidoEnPrueba = MODO_PRUEBA && dia === 1;
+    const permitidoEnPrueba = MODO_PRUEBA && dia === 1;
 
-    if (!esDiaPermitidoEnPrueba && (mesActual < 11 || (mesActual === 11 && dia > diaActual))) {
+    if (!permitidoEnPrueba && (mesActual < 11 || (mesActual === 11 && dia > diaActual))) {
       setAlertaBloqueo(`🔒 Todavía no 🔒 Esta sorpresa se abre el ${dia} de diciembre.`);
       return;
     }
@@ -74,7 +69,7 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
         .eq('dia', dia)
         .single();
 
-      marcarDiaComoVisto(dia);
+      marcarDiaVisto(dia);
 
       if (error || !data) {
         onAbrirSorpresa({
@@ -94,6 +89,7 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
 
   return (
     <div className="min-h-screen bg-[#FDF8F2] flex flex-col items-center justify-start py-10 px-4 relative z-20">
+      
       <header className="text-center mb-6 max-w-lg">
         <div className="inline-flex items-center gap-1.5 bg-[#F4EBE1] border border-[#E2D5C7] px-4 py-1 rounded-full text-xs font-serif text-[#B83232] font-semibold mb-3">
           <Sparkles className="w-3.5 h-3.5 text-[#B83232]" />
@@ -125,7 +121,7 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
         </div>
       </div>
 
-      {/* Alerta de candado */}
+      {/* Alerta de bloqueo por candado */}
       <AnimatePresence>
         {alertaBloqueo && (
           <motion.div
@@ -140,7 +136,7 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
         )}
       </AnimatePresence>
 
-      {/* Grilla 01-24 */}
+      {/* Cuadrícula de casillas */}
       <div className="grid grid-cols-4 sm:grid-cols-6 gap-3.5 max-w-2xl w-full">
         {Array.from({ length: 24 }, (_, i) => i + 1).map((dia) => {
           const esRojo = diasRojos.includes(dia);
@@ -154,7 +150,7 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
               whileTap={{ scale: 0.95 }}
               onClick={() => intentarAbrirDia(dia)}
               disabled={cargandoDia === dia}
-              className={`aspect-square rounded-2xl flex flex-col items-center justify-center font-serif text-2xl font-bold shadow-sm transition-all border relative overflow-hidden group ${
+              className={`aspect-square rounded-2xl flex flex-col items-center justify-center font-serif text-2xl font-bold shadow-sm transition-all border relative overflow-hidden ${
                 esRojo
                   ? 'bg-[#B83232] text-white border-[#992626] shadow-red-900/10'
                   : 'bg-[#F4EBE1] text-[#3D2E2B] border-[#E2D5C7]'
