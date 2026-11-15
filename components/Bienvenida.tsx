@@ -12,6 +12,7 @@ interface BienvenidaProps {
 export default function Bienvenida({ nombrePareja = "Lucía", onAceptar }: BienvenidaProps) {
   return (
     <div className="min-h-screen bg-[#FDF8F2] flex flex-col items-center justify-center p-4 relative overflow-hidden select-none">
+      
       <div className="absolute top-12 left-12 text-[#EAD7C5] animate-pulse">
         <Sparkles className="w-8 h-8" />
       </div>
@@ -22,7 +23,7 @@ export default function Bienvenida({ nombrePareja = "Lucía", onAceptar }: Bienv
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="flex flex-col items-center text-center max-w-md w-full bg-white/90 backdrop-blur-md p-8 sm:p-10 rounded-3xl shadow-2xl border border-[#F0E6DF] relative z-20"
       >
-        {/* Sobre animado */}
+        {/* Ilustración del sobre animado */}
         <motion.div 
           className="relative mb-8 cursor-pointer"
           whileHover={{ scale: 1.05 }}
@@ -51,8 +52,8 @@ export default function Bienvenida({ nombrePareja = "Lucía", onAceptar }: Bienv
           </div>
         </motion.div>
 
-        {/* Textos */}
-        <div className="inline-flex items-center gap-1 bg-[#FDF8F2] border border-[#EAD7C5] px-3 py-1 rounded-full text-xs font-serif text-[#B83232] font-semibold mb-3">
+        {/* Etiqueta y Título */}
+        <div className="inline-flex items-center gap-1 bg-[#FDF8F2] border border-[#EAD7C5] px-3.5 py-1 rounded-full text-xs font-serif text-[#B83232] font-semibold mb-3">
           <span>24 sorpresas preparadas</span>
         </div>
 
@@ -64,6 +65,7 @@ export default function Bienvenida({ nombrePareja = "Lucía", onAceptar }: Bienv
           Especialmente para {nombrePareja} ❤️
         </p>
 
+        {/* Botón principal */}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}

@@ -21,16 +21,16 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen bg-[#FDF8F2] overflow-x-hidden">
-      {/* 1. Nieve en segundo plano */}
+      {/* 1. Nieve dorada en segundo plano */}
       <NieveFondo />
 
-      {/* 2. Ráfaga de corazones al pulsar */}
+      {/* 2. Disparo de corazones al pulsar */}
       <EfectoCorazones />
 
-      {/* 3. Reproductor de música navideña flotante */}
+      {/* 3. Reproductor de música festiva */}
       <ReproductorMusica />
 
-      {/* 4. Cambio de vistas */}
+      {/* 4. Alternancia entre portada y cuadrícula */}
       {!mostrarCuadricula ? (
         <Bienvenida 
           nombrePareja="Lucía" 
@@ -43,7 +43,7 @@ export default function Home() {
         />
       )}
 
-      {/* 5. Ventana modal con Rasca y Gana */}
+      {/* 5. Ventana modal interactiva */}
       {sorpresaSeleccionada && (
         <ModalSorpresa 
           sorpresa={sorpresaSeleccionada} 

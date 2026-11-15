@@ -29,6 +29,7 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
+    // Fondo metalizado para la capa de rascado
     const gradiente = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     gradiente.addColorStop(0, '#D4AF37');
     gradiente.addColorStop(0.5, '#F5EBE1');
@@ -52,7 +53,7 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
       setRevelado(true);
     };
 
-    // LECTURA ROBUSTA DEL EVENTO TÁCTIL O MOUSE
+    // CORRECCIÓN TÁCTIL EXACTA (Acceso a e.touches)
     const obtenerPosicion = (e: MouseEvent | TouchEvent) => {
       const rect = canvas.getBoundingClientRect();
       let clienteX = 0;

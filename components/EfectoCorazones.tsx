@@ -3,29 +3,31 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface Particula {
+interface ParticulaCorazon {
   id: number;
   x: number;
   y: number;
-  size: number;
+  tamano: number;
   color: string;
+  rotacion: number;
 }
 
 export default function EfectoCorazones() {
-  const [particulas, setParticulas] = useState<Particula[]>([]);
+  const [particulas, setParticulas] = useState<ParticulaCorazon[]>([]);
 
   useEffect(() => {
     const manejarClick = (e: MouseEvent) => {
-      const colores = ['#B83232', '#EAD7C5', '#FF4D4D', '#FFD700'];
-      const nuevas: Particula[] = Array.from({ length: 5 }).map((_, i) => ({
-        id: Date.now() + i + Math.random(),
+      const paleta = ['#B83232', '#EAD7C5', '#FF4D4D', '#FFD700', '#D4AF37'];
+      const nuevasParticulas: ParticulaCorazon[] = Array.from({ length: 6 }).map((_, idx) => ({
+        id: Date.now() + idx + Math.random(),
         x: e.clientX + (Math.random() * 30 - 15),
         y: e.clientY + (Math.random() * 30 - 15),
-        size: Math.random() * 14 + 12,
-        color: colores[Math.floor(Math.random() * colores.length)],
+        tamano: Math.random() * 16 + 12,
+        color: paleta[Math.floor(Math.random() * paleta.length)],
+        rotacion: Math.random() * 60 - 30,
       }));
 
-      setParticulas((prev) => [...prev.slice(-15), ...nuevas]);
+      setParticulas((prev) => [...prev.slice(-20), ...nuevasParticulas]);
     };
 
     window.addEventListener('click', manejarClick);
@@ -38,11 +40,21 @@ export default function EfectoCorazones() {
         {particulas.map((p) => (
           <motion.div
             key={p.id}
-            initial={{ opacity: 1, scale: 0.5, x: p.x, y: p.y }}
-            animate={{ opacity: 0, scale: 1.4, y: p.y - 70, x: p.x + (Math.random() * 30 - 15) }}
+            initial={{ opacity: 1, scale: 0.4, x: p.x, y: p.y, rotate: 0 }}
+            animate={{
+              opacity: 0,
+              scale: 1.5,
+              y: p.y - 85,
+              x: p.x + (Math.random() * 40 - 20),
+              rotate: p.rotacion,
+            }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            style={{ position: 'absolute', fontSize: `${p.size}px`, color: p.color }}
+            transition={{ duration: 0.85, ease: 'easeOut' }}
+            style={{
+              position: 'absolute',
+              fontSize: `${p.tamano}px`,
+              color: p.color,
+            }}
           >
             ❤️
           </motion.div>

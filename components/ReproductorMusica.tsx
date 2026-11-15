@@ -9,11 +9,14 @@ export default function ReproductorMusica() {
 
   const alternarMusica = () => {
     if (!audioRef.current) return;
+
     if (sonando) {
       audioRef.current.pause();
       setSonando(false);
     } else {
-      audioRef.current.play().then(() => setSonando(true)).catch((e) => console.log(e));
+      audioRef.current.play()
+        .then(() => setSonando(true))
+        .catch((err) => console.log("Permiso de audio requerido:", err));
     }
   };
 
@@ -26,8 +29,8 @@ export default function ReproductorMusica() {
       />
       <button
         onClick={alternarMusica}
-        className="bg-white/90 backdrop-blur-md border border-[#EAD7C5] p-3 rounded-full shadow-lg text-[#B83232] hover:scale-110 transition-transform flex items-center gap-2"
-        title={sonando ? 'Silenciar música' : 'Activar música navideña'}
+        className="bg-white/90 backdrop-blur-md border border-[#EAD7C5] p-3 rounded-full shadow-lg text-[#B83232] hover:scale-110 transition-transform flex items-center gap-2 select-none"
+        title={sonando ? 'Pausar música navideña' : 'Reproducir música navideña'}
       >
         <Music className="w-4 h-4 animate-bounce" />
         {sonando ? <Volume2 className="w-4 h-4 text-[#B83232]" /> : <VolumeX className="w-4 h-4 text-gray-400" />}
