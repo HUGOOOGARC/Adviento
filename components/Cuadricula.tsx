@@ -12,28 +12,29 @@ interface Sorpresa {
 }
 
 interface CuadriculaProps {
+  nombrePareja?: string;
   onAbrirSorpresa: (sorpresa: Sorpresa) => void;
 }
 
-export default function Cuadricula({ onAbrirSorpresa }: CuadriculaProps) {
+export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }: CuadriculaProps) {
   const [alertaBloqueo, setAlertaBloqueo] = useState<string | null>(null);
   const [cargandoDia, setCargandoDia] = useState<number | null>(null);
 
-  // Días con diseño en tono rojo según la distribución visual observada en la captura
-  const diasRojos = [2-6]; 
+  // Lista explícita de días con diseño en tono rojo para alternar en la grilla
+  const diasRojos = [1, 5-9];
 
   const intentarAbrirDia = async (dia: number) => {
     const fechaActual = new Date();
     const mesActual = fechaActual.getMonth(); // 11 corresponde a Diciembre en JavaScript
     const diaActual = fechaActual.getDate();
 
-    // 1. Lógica de restricción de fechas: si es anterior a diciembre o es un día futuro
+    // Lógica de restricción de fechas: si es anterior a diciembre o es un día futuro
     if (mesActual < 11 || (mesActual === 11 && dia > diaActual)) {
       setAlertaBloqueo(`🔒 Todavía no 🔒 Esta sorpresa se abre el ${dia} de diciembre.`);
       return;
     }
 
-    // 2. Si el día está desbloqueado, consultar el contenido guardado en Supabase
+    // Si el día está desbloqueado, consultar el contenido guardado en Supabase
     setAlertaBloqueo(null);
     setCargandoDia(dia);
 
@@ -48,13 +49,13 @@ export default function Cuadricula({ onAbrirSorpresa }: CuadriculaProps) {
         onAbrirSorpresa({
           dia,
           titulo: `Sorpresa del Día ${dia}`,
-          mensaje: `¡Has desbloqueado el día ${dia}! (Puedes editar este contenido en Supabase).`,
+          mensaje: `¡Has desbloqueado la sorpresa del día ${dia}!`,
         });
       } else {
         onAbrirSorpresa(data);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error al consultar Supabase:", err);
     } finally {
       setCargandoDia(null);
     }
@@ -62,8 +63,11 @@ export default function Cuadricula({ onAbrirSorpresa }: CuadriculaProps) {
 
   return (
     <div className="min-h-screen bg-[#FDF8F2] flex flex-col items-center justify-start py-10 px-4">
-      {/* --- ENCABEZADO --- */}
+      {/* --- ENCABEZADO PERSONALIZADO --- */}
       <header className="text-center mb-8 max-w-lg">
+        <p className="text-xs font-serif text-[#7A5A4A] tracking-wide font-semibold uppercase mb-1">
+          24 sorpresas para {nombrePareja}
+        </p>
         <h1 className="text-3xl sm:text-4xl font-serif text-[#3D2E2B] mb-2 tracking-tight">
           Feliz Navidad mi Amor
         </h1>

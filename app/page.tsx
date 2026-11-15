@@ -10,7 +10,7 @@ export default function Home() {
   const [sorpresaSeleccionada, setSorpresaSeleccionada] = useState<any | null>(null);
 
   if (pantalla === 'bienvenida') {
-    return <Bienvenida nombrePareja="Maria" onAceptar={() => setPantalla('grid')} />;
+    return <Bienvenida nombrePareja="Lucía" onAceptar={() => setPantalla('grid')} />;
   }
 
   return (
