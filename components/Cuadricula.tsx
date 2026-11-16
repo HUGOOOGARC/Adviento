@@ -16,6 +16,7 @@ interface CuadriculaProps {
 export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }: CuadriculaProps) {
   const [alertaBloqueo, setAlertaBloqueo] = useState<string | null>(null);
   const [cargandoDia, setCargandoDia] = useState<number | null>(null);
+  const [abriendoDia, setAbriendoDia] = useState<number | null>(null);
   const [diasAbiertos, setDiasAbiertos] = useState<number[]>([]);
   const [modoPreview, setModoPreview] = useState(false);
   const [toquesTitulo, setToquesTitulo] = useState(0);
@@ -83,13 +84,18 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
 
     setAlertaBloqueo(null);
     setCargandoDia(dia);
+    setAbriendoDia(dia);
 
     try {
-      const { data, error } = await supabase
+      // Iniciar fetch de datos y dar 380ms para ver la puertecita 3D rotar en su bisagra
+      const esperaGiro = new Promise((resolve) => setTimeout(resolve, 380));
+      const fetchSupabase = supabase
         .from('sorpresas')
         .select('*')
         .eq('dia', dia)
         .single();
+
+      const [{ data, error }] = await Promise.all([fetchSupabase, esperaGiro]);
 
       marcarDiaVisto(dia);
 
@@ -119,6 +125,7 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
       onAbrirSorpresa(respaldo);
     } finally {
       setCargandoDia(null);
+      setAbriendoDia(null);
     }
   };
 
@@ -177,38 +184,61 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
         )}
       </AnimatePresence>
 
-      {/* Cuadrícula de casillas (01 a 24) */}
+      {/* Cuadrícula de casillas (01 a 24) con bisagra 3D tradicional */}
       <div className="grid grid-cols-4 sm:grid-cols-6 gap-3.5 max-w-2xl w-full">
         {Array.from({ length: 24 }, (_, i) => i + 1).map((dia) => {
           const esRojo = diasRojos.includes(dia);
           const yaAbierto = diasAbiertos.includes(dia);
           const numeroFormateado = dia < 10 ? `0${dia}` : `${dia}`;
+          const estaAbriendo = abriendoDia === dia;
 
           return (
-            <motion.button
+            <div
               key={dia}
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => intentarAbrirDia(dia)}
-              disabled={cargandoDia === dia}
-              className={`aspect-square rounded-2xl flex flex-col items-center justify-center font-serif text-2xl font-bold shadow-sm transition-all border relative overflow-hidden ${
-                esRojo
-                  ? 'bg-[#B83232] text-white border-[#992626] shadow-red-900/10'
-                  : 'bg-[#F4EBE1] text-[#3D2E2B] border-[#E2D5C7]'
-              }`}
+              className="aspect-square relative"
+              style={{ perspective: '900px' }}
             >
-              {yaAbierto && (
-                <div className="absolute top-1.5 right-1.5">
-                  <CheckCircle2 className={`w-3.5 h-3.5 ${esRojo ? 'text-white/80' : 'text-[#B83232]'}`} />
-                </div>
-              )}
+              {/* Cavidad interior del calendario de adviento (revelada tras la puerta) */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#2E1815] to-[#1C0E0C] border border-[#4A2822] flex flex-col items-center justify-center shadow-inner overflow-hidden">
+                <Sparkles className="w-5 h-5 text-[#FFD700] animate-pulse" />
+              </div>
 
-              {cargandoDia === dia ? (
-                <span className="text-xs animate-pulse">...</span>
-              ) : (
-                <span>{numeroFormateado}</span>
-              )}
-            </motion.button>
+              {/* Tapa / Puertecita que rota hacia afuera sobre la bisagra izquierda */}
+              <motion.button
+                whileHover={!estaAbriendo ? { scale: 1.04, y: -2 } : {}}
+                whileTap={!estaAbriendo ? { scale: 0.96 } : {}}
+                onClick={() => intentarAbrirDia(dia)}
+                disabled={cargandoDia === dia}
+                animate={{
+                  rotateY: estaAbriendo ? -118 : 0,
+                }}
+                transition={{
+                  duration: 0.42,
+                  ease: [0.4, 0, 0.2, 1],
+                }}
+                style={{
+                  transformOrigin: 'left center',
+                  transformStyle: 'preserve-3d',
+                }}
+                className={`absolute inset-0 rounded-2xl flex flex-col items-center justify-center font-serif text-2xl font-bold shadow-sm transition-shadow z-10 ${
+                  esRojo
+                    ? 'bg-[#B83232] text-white border-[#992626] shadow-red-900/10'
+                    : 'bg-[#F4EBE1] text-[#3D2E2B] border-[#E2D5C7]'
+                }`}
+              >
+                {yaAbierto && (
+                  <div className="absolute top-1.5 right-1.5">
+                    <CheckCircle2 className={`w-3.5 h-3.5 ${esRojo ? 'text-white/80' : 'text-[#B83232]'}`} />
+                  </div>
+                )}
+
+                {cargandoDia === dia && !estaAbriendo ? (
+                  <span className="text-xs animate-pulse">...</span>
+                ) : (
+                  <span>{numeroFormateado}</span>
+                )}
+              </motion.button>
+            </div>
           );
         })}
       </div>
