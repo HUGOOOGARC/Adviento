@@ -5,11 +5,19 @@ import { Clock } from 'lucide-react';
 
 export default function RelojCuentaAtras() {
   const [tiempo, setTiempo] = useState({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
+  const [terminado, setTerminado] = useState(false);
 
   useEffect(() => {
     const calcular = () => {
       const ahora = new Date();
       const ano = ahora.getFullYear();
+      const mes = ahora.getMonth(); // 11 = Diciembre
+
+      if ((mes === 11 && ahora.getDate() > 24) || mes > 11) {
+        setTerminado(true);
+        return;
+      }
+
       let objetivo = new Date(ano, 11, 1, 0, 0, 0); // 1 de Diciembre
 
       if (ahora.getTime() > objetivo.getTime() && ahora.getDate() <= 24) {
@@ -32,6 +40,14 @@ export default function RelojCuentaAtras() {
     const timer = setInterval(calcular, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  if (terminado) {
+    return (
+      <div className="bg-white/80 backdrop-blur-sm border border-[#EAD7C5] px-4 py-2 rounded-2xl shadow-sm flex items-center justify-center gap-2 text-xs font-serif text-[#B83232] mb-6 select-none font-semibold">
+        <span>¡Feliz Navidad! Todas las sorpresas están disponibles ❤️</span>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white/80 backdrop-blur-sm border border-[#EAD7C5] px-4 py-2 rounded-2xl shadow-sm flex items-center justify-center gap-3 text-xs font-serif text-[#3D2E2B] mb-6 select-none">
