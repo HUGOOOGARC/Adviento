@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Lock, Heart, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import RelojCuentaAtras from './RelojCuentaAtras';
+import BotonNotificaciones from './BotonNotificaciones';
 import { SORPRESAS_SUPABASE_FALLBACK, Sorpresa } from '@/lib/sorpresasData';
 
 interface CuadriculaProps {
@@ -136,9 +137,12 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
         {/* Guirnalda de Luces LED */}
         <LucesNavidenas />
 
-        <div className="inline-flex items-center gap-1.5 bg-[#F4EBE1] border border-[#E2D5C7] px-4 py-1 rounded-full text-xs font-serif text-[#B83232] font-semibold mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-[#B83232]" />
-          <span>24 sorpresas para {nombrePareja}</span>
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <div className="inline-flex items-center gap-1.5 bg-[#F4EBE1] border border-[#E2D5C7] px-4 py-1 rounded-full text-xs font-serif text-[#B83232] font-semibold">
+            <Sparkles className="w-3.5 h-3.5 text-[#B83232]" />
+            <span>24 sorpresas para {nombrePareja}</span>
+          </div>
+          <BotonNotificaciones />
         </div>
 
         <h1 
