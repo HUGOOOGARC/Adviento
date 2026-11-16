@@ -20,7 +20,8 @@ export const SORPRESAS_SUPABASE_FALLBACK: Sorpresa[] = [
   {
     dia: 3,
     titulo: "Nuestra foto favorita 📸",
-    mensaje: "Estaba mirando fotos nuestras y no he podido evitar sonreír recordando este momento. Míranos, ¡quién nos iba a decir todo lo bonito que nos quedaba por vivir!"
+    mensaje: "Estaba mirando fotos nuestras y no he podido evitar sonreír recordando este momento. Míranos, ¡quién nos iba a decir todo lo bonito que nos quedaba por vivir!",
+    url_imagen: "/fotos/dia-03.jpg"
   },
   {
     dia: 4,

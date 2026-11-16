@@ -18,13 +18,14 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
   const [revelado, setRevelado] = useState(false);
   const [canjeado, setCanjeado] = useState(false);
   const [fechaCanje, setFechaCanje] = useState<string | null>(null);
+  const [mostrarLightbox, setMostrarLightbox] = useState(false);
 
   // Clasificación del contenido
   const tituloLower = (sorpresa.titulo || '').toLowerCase();
   const esCupon = tituloLower.includes('cupón') || tituloLower.includes('cupon');
   const esMusica = sorpresa.dia === 8 || tituloLower.includes('canción') || tituloLower.includes('cancion');
   const esNochebuena = sorpresa.dia === 24;
-  const esRecuerdoFoto = sorpresa.dia === 3 || sorpresa.dia === 7 || !!sorpresa.url_imagen;
+  const esRecuerdoFoto = sorpresa.dia === 3 || !!sorpresa.url_imagen;
 
   // Limpiar y formatear saltos de línea literales (\n)
   const mensajeLimpio = (sorpresa.mensaje || '').replace(/\\n/g, '\n');
@@ -352,25 +353,28 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
                 </p>
               </div>
             ) : esRecuerdoFoto ? (
-              /* 4. DISEÑO TIPO POLAROID / RECUERDO ÍNTIMO (Día 3, Día 7, etc.) */
-              <div className="bg-white p-3 pb-4 rounded-2xl shadow-md border border-[#EAD7C5] text-center transform -rotate-1">
-                {sorpresa.url_imagen ? (
+              /* 4. DISEÑO TIPO POLAROID / RECUERDO ÍNTIMO (Día 3) */
+              <div className="bg-white p-3 pb-4 rounded-2xl shadow-md border border-[#EAD7C5] text-center transform -rotate-1 transition-transform hover:rotate-0">
+                <div 
+                  className="relative group cursor-zoom-in overflow-hidden rounded-xl mb-3 shadow-inner bg-black/5"
+                  onClick={() => setMostrarLightbox(true)}
+                  title="Toca para ver en pantalla completa"
+                >
                   <img
-                    src={sorpresa.url_imagen}
+                    src={sorpresa.url_imagen || '/fotos/dia-03.jpg'}
                     alt={`Recuerdo ${sorpresa.dia}`}
-                    className="w-full max-h-52 object-cover rounded-xl mb-3 shadow-inner"
+                    className="w-full max-h-56 object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
                   />
-                ) : (
-                  <div className="w-full h-32 bg-gradient-to-br from-[#FDF8F2] to-[#EAD7C5] rounded-xl flex flex-col items-center justify-center text-[#7A6A65] mb-3 border border-[#E2D5C7]">
-                    <Camera className="w-8 h-8 text-[#B83232] mb-1 opacity-70" />
-                    <span className="text-xs font-serif italic">Nuestros mejores momentos ❤️</span>
+                  <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-serif font-semibold gap-1.5 backdrop-blur-[1px]">
+                    <Sparkles className="w-4 h-4 text-[#FFD700]" />
+                    <span>Toca para ampliar foto</span>
                   </div>
-                )}
+                </div>
                 <p className="text-sm font-serif text-[#3D2E2B] leading-relaxed px-2">
                   {mensajeLimpio}
                 </p>
                 <div className="text-[11px] font-serif text-[#7A6A65] italic mt-2">
-                  — Un momento guardado en el corazón —
+                  — Un momento guardado en el corazón ❤️ —
                 </div>
               </div>
             ) : esNochebuena ? (
@@ -448,6 +452,49 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
           Guardar recuerdo ❤️
         </button>
       </motion.div>
+
+      {/* Visor Lightbox a Pantalla Completa para fotos */}
+      <AnimatePresence>
+        {mostrarLightbox && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/92 backdrop-blur-md flex flex-col items-center justify-center p-3 sm:p-6"
+            onClick={() => setMostrarLightbox(false)}
+          >
+            <button
+              onClick={() => setMostrarLightbox(false)}
+              aria-label="Cerrar visor de foto"
+              className="absolute top-4 right-4 p-2.5 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors z-20"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-lg w-full flex flex-col items-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="bg-white p-2.5 sm:p-3 pb-5 rounded-2xl shadow-2xl border border-white/20 max-w-full">
+                <img
+                  src={sorpresa.url_imagen || '/fotos/dia-03.jpg'}
+                  alt={`Recuerdo ${sorpresa.dia}`}
+                  className="max-h-[75vh] w-auto max-w-full object-contain rounded-xl"
+                />
+                <p className="text-center font-serif text-xs sm:text-sm text-[#3D2E2B] font-semibold mt-3">
+                  Nuestra foto favorita ❤️ • Concierto inolvidable
+                </p>
+              </div>
+              <p className="text-white/60 text-xs font-serif mt-3">
+                Toca en cualquier parte para cerrar
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

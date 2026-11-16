@@ -99,10 +99,14 @@ export default function Cuadricula({ nombrePareja = "Lucía", onAbrirSorpresa }:
           dia,
           titulo: `Sorpresa del Día ${dia}`,
           mensaje: `¡Has desbloqueado la sorpresa del día ${dia}!`,
+          url_imagen: dia === 3 ? '/fotos/dia-03.jpg' : undefined,
         };
         onAbrirSorpresa(respaldo);
       } else {
-        onAbrirSorpresa(data);
+        onAbrirSorpresa({
+          ...data,
+          url_imagen: data.url_imagen || (dia === 3 ? '/fotos/dia-03.jpg' : undefined),
+        });
       }
     } catch (err) {
       console.error("Error al consultar Supabase, cargando respaldo local:", err);
