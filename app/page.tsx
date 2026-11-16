@@ -7,7 +7,13 @@ import ModalSorpresa from '@/components/ModalSorpresa';
 import NieveFondo from '@/components/NieveFondo';
 import EfectoCorazones from '@/components/EfectoCorazones';
 import ReproductorMusica from '@/components/ReproductorMusica';
-import { Sorpresa } from '@/lib/sorpresasData';
+
+interface Sorpresa {
+  dia: number;
+  titulo: string;
+  mensaje: string;
+  url_imagen?: string;
+}
 
 export default function Home() {
   const [mostrarCuadricula, setMostrarCuadricula] = useState(false);
@@ -15,13 +21,13 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen bg-[#FDF8F2] overflow-x-hidden">
-      {/* 1. Nieve dorada animada en segundo plano */}
+      {/* 1. Nieve dorada en segundo plano */}
       <NieveFondo />
 
-      {/* 2. Disparo de corazones al pulsar en pantalla */}
+      {/* 2. Disparo de corazones al pulsar */}
       <EfectoCorazones />
 
-      {/* 3. Reproductor flotante de música festiva */}
+      {/* 3. Reproductor de música festiva */}
       <ReproductorMusica />
 
       {/* 4. Alternancia entre portada y cuadrícula */}
@@ -37,7 +43,7 @@ export default function Home() {
         />
       )}
 
-      {/* 5. Ventana modal interactiva con rascado, cupones y reacciones */}
+      {/* 5. Ventana modal interactiva */}
       {sorpresaSeleccionada && (
         <ModalSorpresa 
           sorpresa={sorpresaSeleccionada} 
