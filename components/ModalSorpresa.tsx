@@ -1,8 +1,11 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { X, Heart, CheckCircle2, Sparkles, Scissors, Ticket } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  X, Heart, CheckCircle2, Sparkles, Scissors, Ticket, Music, 
+  Camera, Flame, Star, Quote, Award 
+} from 'lucide-react';
 import { Sorpresa } from '@/lib/sorpresasData';
 
 interface ModalSorpresaProps {
@@ -16,10 +19,12 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
   const [canjeado, setCanjeado] = useState(false);
   const [fechaCanje, setFechaCanje] = useState<string | null>(null);
 
-  // Detección de cupones
-  const esCupon =
-    sorpresa.titulo.toLowerCase().includes('cupón') ||
-    sorpresa.titulo.toLowerCase().includes('cupon');
+  // Clasificación del contenido
+  const tituloLower = (sorpresa.titulo || '').toLowerCase();
+  const esCupon = tituloLower.includes('cupón') || tituloLower.includes('cupon');
+  const esMusica = sorpresa.dia === 8 || tituloLower.includes('canción') || tituloLower.includes('cancion');
+  const esNochebuena = sorpresa.dia === 24;
+  const esRecuerdoFoto = sorpresa.dia === 3 || sorpresa.dia === 7 || !!sorpresa.url_imagen;
 
   // Limpiar y formatear saltos de línea literales (\n)
   const mensajeLimpio = (sorpresa.mensaje || '').replace(/\\n/g, '\n');
@@ -59,15 +64,17 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
     try {
       const confetti = (await import('canvas-confetti')).default;
       confetti({
-        particleCount: 75,
-        spread: 65,
+        particleCount: esNochebuena ? 120 : 75,
+        spread: esNochebuena ? 90 : 65,
         origin: { y: 0.6 },
-        colors: ['#B83232', '#EAD7C5', '#FFD700'],
+        colors: esNochebuena 
+          ? ['#D4AF37', '#FFD700', '#B83232', '#FFFDF8'] 
+          : ['#B83232', '#EAD7C5', '#FFD700'],
       });
     } catch (e) {
       console.error(e);
     }
-  }, []);
+  }, [esNochebuena]);
 
   const revelarDirecto = () => {
     setRevelado(true);
@@ -110,9 +117,9 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
     // Fondo metalizado dorado enriquecido
     const gradiente = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     gradiente.addColorStop(0, '#D4AF37');
-    gradiente.addColorStop(0.3, '#FFF6E9');
-    gradiente.addColorStop(0.7, '#D4AF37');
-    gradiente.addColorStop(1, '#AA7A1E');
+    gradiente.addColorStop(0.25, '#FFF6E9');
+    gradiente.addColorStop(0.65, '#D4AF37');
+    gradiente.addColorStop(1, '#9E6D13');
 
     ctx.fillStyle = gradiente;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -129,7 +136,7 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
     const rascar = (x: number, y: number) => {
       ctx.globalCompositeOperation = 'destination-out';
       ctx.beginPath();
-      ctx.arc(x, y, 26, 0, Math.PI * 2);
+      ctx.arc(x, y, 28, 0, Math.PI * 2);
       ctx.fill();
 
       trazos++;
@@ -138,8 +145,8 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
         dispararConfeti();
       }
 
-      // Auto-revelado suave si se rasca más del 40%
-      if (trazos % 12 === 0) {
+      // Auto-revelado suave si se rasca más del 38%
+      if (trazos % 10 === 0) {
         try {
           const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
           const data = img.data;
@@ -147,14 +154,13 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
           for (let i = 3; i < data.length; i += 32) {
             if (data[i] === 0) transparentes++;
           }
-          if (transparentes > (data.length / 32) * 0.4) {
+          if (transparentes > (data.length / 32) * 0.38) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
           }
         } catch (e) {}
       }
     };
 
-    // Coordenadas táctiles exactas para móvil
     const obtenerPosicion = (e: MouseEvent | TouchEvent) => {
       const rect = canvas.getBoundingClientRect();
       let clienteX = 0;
@@ -211,7 +217,7 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-md overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onCerrar();
       }}
@@ -220,7 +226,7 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-[#F0E6DF] relative text-center my-auto overflow-hidden"
+        className="bg-white rounded-3xl p-5 sm:p-7 max-w-md w-full shadow-2xl border border-[#F0E6DF] relative text-center my-auto overflow-hidden"
       >
         {/* Botón cerrar */}
         <button
@@ -231,81 +237,93 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
           <X className="w-5 h-5" />
         </button>
 
-        {/* Etiqueta superior */}
-        <div className="inline-flex items-center gap-1.5 bg-[#FDF8F2] border border-[#EAD7C5] px-4 py-1.5 rounded-full text-xs font-serif text-[#B83232] font-semibold mb-3">
-          <Heart className="w-3.5 h-3.5 fill-[#B83232]" />
-          <span>Día {sorpresa.dia < 10 ? `0${sorpresa.dia}` : sorpresa.dia} de Diciembre</span>
+        {/* Etiqueta superior con estilo festivo */}
+        <div className="inline-flex items-center gap-1.5 bg-[#FDF8F2] border border-[#EAD7C5] px-4 py-1.5 rounded-full text-xs font-serif text-[#B83232] font-semibold mb-3 shadow-xs">
+          {esNochebuena ? (
+            <Star className="w-3.5 h-3.5 fill-[#D4AF37] text-[#D4AF37]" />
+          ) : esCupon ? (
+            <Ticket className="w-3.5 h-3.5 text-[#B83232]" />
+          ) : esMusica ? (
+            <Music className="w-3.5 h-3.5 text-[#B83232]" />
+          ) : (
+            <Heart className="w-3.5 h-3.5 fill-[#B83232]" />
+          )}
+          <span>
+            {esNochebuena
+              ? '✨ 24 de Diciembre • Nochebuena ✨'
+              : `Día ${sorpresa.dia < 10 ? `0${sorpresa.dia}` : sorpresa.dia} de Diciembre`}
+          </span>
         </div>
 
         {/* Título de la sorpresa */}
-        <h2 className="text-2xl sm:text-[26px] font-serif text-[#3D2E2B] mb-4 tracking-tight leading-snug font-bold">
+        <h2 className="text-xl sm:text-2xl font-serif text-[#3D2E2B] mb-3.5 tracking-tight leading-snug font-bold">
           {sorpresa.titulo}
         </h2>
 
-        {/* Tarjeta interior interactiva (Carta / Pergamino / Cupón) */}
-        <div className="relative rounded-2xl overflow-hidden mb-4 border border-[#EAD7C5] bg-gradient-to-b from-[#FFFDF9] to-[#FDF8F2] shadow-sm min-h-[170px] flex items-center justify-center">
+        {/* Contenedor interactivo (Capa de rascado y contenido revelado) */}
+        <div className="relative rounded-2xl overflow-hidden mb-4 border border-[#E8D7CA] bg-gradient-to-b from-[#FFFDF9] to-[#FDF8F3] shadow-inner min-h-[180px] flex items-center justify-center">
           
-          {/* Capa de rascado */}
+          {/* Capa de rascado dorada */}
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full z-20 cursor-pointer touch-none"
           />
 
-          {/* Contenido revelado */}
-          <div className="p-5 text-left z-10 w-full">
-            {/* Foto Polaroid si tiene imagen */}
-            {sorpresa.url_imagen && (
-              <div className="bg-white p-2.5 pb-3.5 rounded-xl shadow-md border border-[#EAD7C5] mb-4">
-                <img
-                  src={sorpresa.url_imagen}
-                  alt={`Recuerdo ${sorpresa.dia}`}
-                  className="w-full max-h-48 object-cover rounded-lg"
-                />
-                <p className="text-center text-xs font-serif text-[#7A6A65] italic mt-2">
-                  Recuerdo especial para Lucía ❤️
-                </p>
-              </div>
-            )}
-
-            {/* Caso 1: Cupón / Vale de regalo */}
+          {/* Contenido revelado diseñado a medida para cada tipo */}
+          <div className="p-4 sm:p-5 text-left z-10 w-full">
+            
+            {/* 1. DISEÑO TIPO CUPÓN (Vales oficiales para Lucía) */}
             {esCupon ? (
-              <div className="border border-dashed border-[#B83232]/50 bg-[#FDF8F2] rounded-xl p-4 relative">
-                <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#EAD7C5]">
-                  <div className="flex items-center gap-1 text-[11px] font-serif font-bold text-[#B83232] uppercase tracking-wider">
-                    <Ticket className="w-3.5 h-3.5" />
-                    <span>Vale Especial</span>
+              <div className="bg-[#FFFDF9] border-2 border-dashed border-[#B83232]/50 rounded-2xl p-4 sm:p-5 relative shadow-xs">
+                {/* Cabecera del vale */}
+                <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-[#EAD7C5]">
+                  <div className="flex items-center gap-1.5 text-xs font-serif font-bold text-[#B83232] uppercase tracking-wider">
+                    <Ticket className="w-4 h-4" />
+                    <span>Vale Especial de Amor</span>
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] text-[#7A5A4A] font-mono bg-[#F4EBE1] px-2 py-0.5 rounded">
-                    <Scissors className="w-2.5 h-2.5" />
+                  <div className="flex items-center gap-1 text-[11px] text-[#7A5A4A] font-mono font-bold bg-[#F4EBE1] px-2 py-0.5 rounded-md">
+                    <Scissors className="w-3 h-3 text-[#B83232]" />
                     <span>LUCIA-{sorpresa.dia < 10 ? `0${sorpresa.dia}` : sorpresa.dia}</span>
                   </div>
                 </div>
 
-                <p className="text-sm font-serif text-[#3D2E2B] leading-relaxed mb-1">
+                {/* Texto del cupón */}
+                <p className="text-sm sm:text-[15px] font-serif text-[#3D2E2B] leading-relaxed mb-3">
                   {mensajeLimpio}
                 </p>
-                <p className="text-[11px] font-serif text-[#7A6A65] italic">
-                  Condición: Canjeable con un beso ❤️
-                </p>
+
+                {/* Pie de condiciones */}
+                <div className="pt-2 border-t border-[#EAD7C5]/70 flex items-center justify-between text-[11px] font-serif text-[#7A6A65] italic">
+                  <span>Condición: Canjeable con un beso ❤️</span>
+                  <span>Válido siempre</span>
+                </div>
               </div>
             ) : esListaNumerada ? (
-              /* Caso 2: Lista formateada de cosas (como "5 cosas que amo de ti") */
-              <div className="space-y-2 py-1">
+              /* 2. DISEÑO TIPO LISTA ("5 cosas que amo de ti", etc.) */
+              <div className="space-y-2.5 py-1">
+                <div className="text-center pb-1">
+                  <span className="text-xs font-serif text-[#7A5A4A] italic">
+                    — Razones por las que te elijo cada día —
+                  </span>
+                </div>
                 {lineas.map((linea, idx) => {
                   const match = linea.match(/^(\d+)[\.\)]\s*(.*)$/);
                   if (match) {
                     return (
-                      <div
+                      <motion.div
                         key={idx}
-                        className="flex items-start gap-2.5 bg-white/90 border border-[#EAD7C5] rounded-xl p-2.5 shadow-xs"
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="flex items-start gap-3 bg-white/95 border border-[#EAD7C5] rounded-xl p-3 shadow-xs hover:border-[#B83232]/50 transition-colors"
                       >
-                        <span className="w-5 h-5 rounded-full bg-[#B83232] text-white font-serif font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                        <span className="w-6 h-6 rounded-full bg-gradient-to-br from-[#B83232] to-[#992424] text-white font-serif font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                           {match[1]}
                         </span>
-                        <p className="text-sm font-serif text-[#3D2E2B] leading-snug">
+                        <p className="text-sm font-serif text-[#3D2E2B] leading-relaxed">
                           {match[2]}
                         </p>
-                      </div>
+                      </motion.div>
                     );
                   }
                   return (
@@ -315,12 +333,76 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
                   );
                 })}
               </div>
-            ) : (
-              /* Caso 3: Carta o mensaje personal */
-              <div className="py-2 px-1">
-                <p className="text-sm sm:text-[15px] font-serif text-[#4A3B37] leading-relaxed whitespace-pre-line">
+            ) : esMusica ? (
+              /* 3. DISEÑO TIPO CANCIÓN / MÚSICA (Día 8) */
+              <div className="bg-[#FFFDF9] border border-[#EAD7C5] rounded-2xl p-4 sm:p-5 shadow-xs text-center">
+                <div className="w-12 h-12 mx-auto rounded-full bg-[#B83232]/10 text-[#B83232] flex items-center justify-center mb-3">
+                  <Music className="w-6 h-6" />
+                </div>
+                <div className="flex flex-wrap justify-center gap-2 mb-3">
+                  <span className="bg-[#F4EBE1] border border-[#EAD7C5] text-[#B83232] font-serif font-semibold text-xs px-3 py-1 rounded-full">
+                    🎵 Mírame — Al Safir
+                  </span>
+                  <span className="bg-[#F4EBE1] border border-[#EAD7C5] text-[#B83232] font-serif font-semibold text-xs px-3 py-1 rounded-full">
+                    🎵 Tus Ojos — Kinky
+                  </span>
+                </div>
+                <p className="text-sm font-serif text-[#4A3B37] leading-relaxed italic">
+                  "{mensajeLimpio}"
+                </p>
+              </div>
+            ) : esRecuerdoFoto ? (
+              /* 4. DISEÑO TIPO POLAROID / RECUERDO ÍNTIMO (Día 3, Día 7, etc.) */
+              <div className="bg-white p-3 pb-4 rounded-2xl shadow-md border border-[#EAD7C5] text-center transform -rotate-1">
+                {sorpresa.url_imagen ? (
+                  <img
+                    src={sorpresa.url_imagen}
+                    alt={`Recuerdo ${sorpresa.dia}`}
+                    className="w-full max-h-52 object-cover rounded-xl mb-3 shadow-inner"
+                  />
+                ) : (
+                  <div className="w-full h-32 bg-gradient-to-br from-[#FDF8F2] to-[#EAD7C5] rounded-xl flex flex-col items-center justify-center text-[#7A6A65] mb-3 border border-[#E2D5C7]">
+                    <Camera className="w-8 h-8 text-[#B83232] mb-1 opacity-70" />
+                    <span className="text-xs font-serif italic">Nuestros mejores momentos ❤️</span>
+                  </div>
+                )}
+                <p className="text-sm font-serif text-[#3D2E2B] leading-relaxed px-2">
                   {mensajeLimpio}
                 </p>
+                <div className="text-[11px] font-serif text-[#7A6A65] italic mt-2">
+                  — Un momento guardado en el corazón —
+                </div>
+              </div>
+            ) : esNochebuena ? (
+              /* 5. DISEÑO ESPECIAL NOCHEBUENA (Día 24) */
+              <div className="bg-gradient-to-br from-[#FFFDF0] via-white to-[#FDF5E6] border-2 border-[#D4AF37] rounded-2xl p-5 text-center shadow-md relative">
+                <div className="flex justify-center gap-1 text-[#D4AF37] mb-2">
+                  <Star className="w-4 h-4 fill-[#D4AF37]" />
+                  <Star className="w-5 h-5 fill-[#D4AF37] -mt-1" />
+                  <Star className="w-4 h-4 fill-[#D4AF37]" />
+                </div>
+                <h3 className="text-base font-serif font-bold text-[#B83232] mb-2">
+                  El mejor regalo de mi vida eres tú
+                </h3>
+                <p className="text-sm sm:text-[15px] font-serif text-[#3D2E2B] leading-relaxed mb-3">
+                  {mensajeLimpio}
+                </p>
+                <div className="text-xs font-serif text-[#B83232] font-semibold">
+                  ¡Feliz Navidad, mi pequeña! ❤️🎄
+                </div>
+              </div>
+            ) : (
+              /* 6. DISEÑO CARTA ROMÁNTICA ARTESANAL */
+              <div className="bg-white/80 border border-[#EAD7C5] rounded-2xl p-4 sm:p-5 relative shadow-xs">
+                <Quote className="w-6 h-6 text-[#D4AF37]/40 mb-1" />
+                <p className="text-sm sm:text-[15px] font-serif text-[#3D2E2B] leading-relaxed whitespace-pre-line px-1">
+                  {mensajeLimpio}
+                </p>
+                <div className="pt-3 mt-2 border-t border-[#F0E6DF] text-right">
+                  <span className="text-xs font-serif text-[#7A6A65] italic">
+                    Siempre tuyo ❤️
+                  </span>
+                </div>
               </div>
             )}
           </div>
@@ -340,17 +422,19 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
         {esCupon && (
           <div className="mb-4">
             {!canjeado ? (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={ejecutarCanje}
-                className="w-full bg-[#FDF8F2] hover:bg-[#F5EBE1] border border-[#B83232] text-[#B83232] py-2.5 px-4 rounded-xl text-xs font-serif font-semibold transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                className="w-full bg-gradient-to-r from-[#B83232] to-[#A32525] hover:from-[#A32525] hover:to-[#8E1F1F] text-white py-3 px-4 rounded-xl text-xs font-serif font-semibold tracking-wide transition-all flex items-center justify-center gap-2 shadow-md shadow-red-900/15"
               >
-                <Heart className="w-3.5 h-3.5 fill-[#B83232]" />
-                <span>Canjear este cupón con un beso ❤️</span>
-              </button>
+                <Award className="w-4 h-4 text-white" />
+                <span>Canjear y sellar este cupón con un beso ❤️</span>
+              </motion.button>
             ) : (
-              <div className="w-full bg-red-50/80 border border-red-200 text-[#B83232] py-2.5 px-3 rounded-xl text-xs font-serif font-semibold flex items-center justify-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                <span>¡Canjeado con un beso el {fechaCanje}! ❤️</span>
+              <div className="w-full bg-emerald-50 border border-emerald-200 text-emerald-800 py-2.5 px-3 rounded-xl text-xs font-serif font-semibold flex items-center justify-center gap-1.5 shadow-xs">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>¡Sello oficial: Canjeado con un beso el {fechaCanje}! ❤️</span>
               </div>
             )}
           </div>
@@ -359,7 +443,7 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
         {/* Botón inferior principal */}
         <button
           onClick={onCerrar}
-          className="w-full bg-[#B83232] hover:bg-[#A02828] text-white font-medium py-3.5 px-6 rounded-xl transition-all shadow-md text-sm"
+          className="w-full bg-[#B83232] hover:bg-[#A02828] text-white font-medium py-3.5 px-6 rounded-xl transition-all shadow-md text-sm cursor-pointer"
         >
           Guardar recuerdo ❤️
         </button>
