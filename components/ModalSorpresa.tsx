@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Heart, CheckCircle2, Sparkles, Scissors, Ticket, Music, 
-  Camera, Flame, Star, Quote, Award 
+  Camera, Flame, Star, Quote, Award, Download 
 } from 'lucide-react';
 import { Sorpresa } from '@/lib/sorpresasData';
 
@@ -391,9 +391,18 @@ export default function ModalSorpresa({ sorpresa, onCerrar }: ModalSorpresaProps
                 <p className="text-sm sm:text-[15px] font-serif text-[#3D2E2B] leading-relaxed mb-3">
                   {mensajeLimpio}
                 </p>
-                <div className="text-xs font-serif text-[#B83232] font-semibold">
+                <div className="text-xs font-serif text-[#B83232] font-semibold mb-3">
                   ¡Feliz Navidad, mi pequeña! ❤️🎄
                 </div>
+
+                <a
+                  href="/Libro_Recuerdos_Adviento_Lucia.pdf"
+                  download="Libro_Recuerdos_Lucia.pdf"
+                  className="bg-white/95 hover:bg-white border border-[#D4AF37] text-[#3D2E2B] py-2 px-3 rounded-xl text-xs font-serif font-semibold transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5 text-[#B83232]" />
+                  <span>Descargar Libro de Recuerdos en PDF 📖❤️</span>
+                </a>
               </div>
             ) : (
               /* 6. DISEÑO CARTA ROMÁNTICA ARTESANAL */
