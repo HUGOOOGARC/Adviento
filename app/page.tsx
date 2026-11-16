@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Bienvenida from '@/components/Bienvenida';
 import Cuadricula from '@/components/Cuadricula';
 import ModalSorpresa from '@/components/ModalSorpresa';
 import NieveFondo from '@/components/NieveFondo';
 import EfectoCorazones from '@/components/EfectoCorazones';
 import ReproductorMusica from '@/components/ReproductorMusica';
+import PantallaAcceso from '@/components/PantallaAcceso';
 
 interface Sorpresa {
   dia: number;
@@ -16,8 +17,18 @@ interface Sorpresa {
 }
 
 export default function Home() {
-  const [mostrarCuadricula, setMostrarCuadricula] = useState(false);
+  // 'acceso' | 'bienvenida' | 'cuadricula'
+  const [fase, setFase] = useState<'acceso' | 'bienvenida' | 'cuadricula'>('acceso');
   const [sorpresaSeleccionada, setSorpresaSeleccionada] = useState<Sorpresa | null>(null);
+
+  // Si ya tiene acceso guardado, saltamos la pantalla de acceso
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (localStorage.getItem('adviento_acceso_lucia') === 'true') {
+        setFase('bienvenida');
+      }
+    }
+  }, []);
 
   return (
     <main className="relative min-h-screen bg-[#FDF8F2] overflow-x-hidden">
@@ -30,24 +41,30 @@ export default function Home() {
       {/* 3. Reproductor de música festiva */}
       <ReproductorMusica />
 
-      {/* 4. Alternancia entre portada y cuadrícula */}
-      {!mostrarCuadricula ? (
-        <Bienvenida 
-          nombrePareja="Lucía" 
-          onAceptar={() => setMostrarCuadricula(true)} 
+      {/* 4. Flujo de pantallas: acceso → bienvenida → cuadrícula */}
+      {fase === 'acceso' && (
+        <PantallaAcceso onAcceso={() => setFase('bienvenida')} />
+      )}
+
+      {fase === 'bienvenida' && (
+        <Bienvenida
+          nombrePareja="Lucía"
+          onAceptar={() => setFase('cuadricula')}
         />
-      ) : (
-        <Cuadricula 
-          nombrePareja="Lucía" 
-          onAbrirSorpresa={(sorpresa) => setSorpresaSeleccionada(sorpresa)} 
+      )}
+
+      {fase === 'cuadricula' && (
+        <Cuadricula
+          nombrePareja="Lucía"
+          onAbrirSorpresa={(sorpresa) => setSorpresaSeleccionada(sorpresa)}
         />
       )}
 
       {/* 5. Ventana modal interactiva */}
       {sorpresaSeleccionada && (
-        <ModalSorpresa 
-          sorpresa={sorpresaSeleccionada} 
-          onCerrar={() => setSorpresaSeleccionada(null)} 
+        <ModalSorpresa
+          sorpresa={sorpresaSeleccionada}
+          onCerrar={() => setSorpresaSeleccionada(null)}
         />
       )}
     </main>
